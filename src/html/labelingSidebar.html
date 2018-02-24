@@ -18,8 +18,8 @@
 <div class="reprintDiv">
   <fieldset>
     <legend>Reprint Labels:</legend>
-    <input type="text" name="reprint" id="reprintOrderNumber"/>
-    <input type="button" name="reprint" value="Reprint" onclick=""/>
+    <input type="text" name="reprint" id="OrderNumber"/>
+    <input type="button" name="reprint" value="Reprint" onclick="btnPress();"/>
     <!--upon submit, clear field -->
   </fieldset>
 </div>
@@ -27,11 +27,20 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 <script>
-
 //TODO: onchange of radio-1 - apply filter on list
 //TODO: write function that will call GAS to invoke cloud print API, change order state, remove from list
   $( function() {
-    $( "input" ).checkboxradio();
-    $( "fieldset" ).controlgroup();
+//    $( "input" ).checkboxradio();
+//    $( "fieldset" ).controlgroup();
+
   } );
+  var btnPress = function() {
+    var order_id = document.getElementById('OrderNumber').value;
+    if (order_id === null || order_id === undefined) {
+      // invalid order number?
+      return;
+    }
+    //TODO: need callback from server to confirm correct order_id to user ... it fails silently now
+    google.script.run.printLabel(order_id);
+  };
 </script>

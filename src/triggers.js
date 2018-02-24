@@ -75,4 +75,14 @@ function notifySidebars() {
     return order["Order State"] === "Ready";
   });
   
-}    
+}
+
+function printLabel(order_id) {
+  var worksheet = new Worksheet();
+  worksheet.printLabel(order_id);
+}
+
+function advanceState(order_id) {
+  var worksheet = new Worksheet();
+  worksheet.advanceState(order_id);
+}

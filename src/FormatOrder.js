@@ -117,7 +117,7 @@ FormatOrder.prototype.ConvertSquareToSheet = function(txnMetadata, orderDetails,
     "Last Name": lastName, //TODO: timing issue around fetching this prematurely?
     "Expedite": "No",
     "Note on Order": txnMetadata.note,//TODO: not sure this is the correct field
-//    "Label Doc Link": createLabelFile(orderDetails, lastName, mealCount, soupCount),
+    "Label Doc Link": createLabelFile(orderDetails, lastName, mealCount, soupCount),
     "Order Venue": (this.getStateFromOrigin(txnMetadata.origin) == "Present") ? "In Person" : "Online",
     "Order State": this.getStateFromOrigin(txnMetadata.origin),
     "Square Receipt Link": orderDetails.receipt_url,
@@ -138,6 +138,11 @@ FormatOrder.prototype.ConvertSquareToSheet = function(txnMetadata, orderDetails,
     result[attrname] = ingredients[attrname];
   }
 
+  if (result['Label Doc Link'] == '') {
+    // attempt to create the label again, using the data from Sheet rather than
+    result['Label Doc Link'] = createLabelFileFromSheet(result);
+  }
+
   return result;
 }
 
@@ -149,5 +154,6 @@ FormatOrder.prototype.ConvertSquareToSheet = function(txnMetadata, orderDetails,
  * @returns {string} formatted date
  */
 function convertISODate(date){
+// TODO: why isn't seconds here?
   return Utilities.formatDate(date, "EST", "MM/dd/yyyy hh:mma");
 }
