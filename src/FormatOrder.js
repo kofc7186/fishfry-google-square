@@ -28,9 +28,9 @@ FormatOrder.prototype.getOrderNumberAtomic = function() {
       next = "2018";
     }
     else {
-      next = parseInt(current) + 1;
+      next = (parseInt(current) + 1).toFixed();
     }
-    props.setProperty('atomicOrderNumber', next.toString());
+    props.setProperty('atomicOrderNumber', next);
   }
   catch (e) {
     Logger.log(e);
@@ -39,7 +39,12 @@ FormatOrder.prototype.getOrderNumberAtomic = function() {
     lock.releaseLock();
   }
 
-  return next.toFixed();
+  if (next === null) {
+    // TODO: should this have a backup method when this condition happens?
+    throw "Unable to acquire next order number!"
+  }
+
+  return next;
 };
 
 
