@@ -113,7 +113,7 @@ function pullSquarePayments() {
     var txnObj = fmt.SquareTransactionToSheet(api.default_location_id, payment.id, payment);
     console.log({message: "pullSquarePayments: attempting upsert for payment", data: payment, order: order});
     //3/3/19: pass payment object here to save separate API call back to Square
-    worksheet.upsertTransaction(txnObj, payment);
+    worksheet.upsertTransaction(txnObj.txn, payment);
   });
 }
 
