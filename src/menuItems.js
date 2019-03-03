@@ -43,7 +43,7 @@ function menuItems() {
         'Fried Fish (Child)': new menuItem({
           abbr: 'Fried Fish',
           ingredients: [
-            new menuItemIngredient('Fried Fish', 0.67)
+            new menuItemIngredient('Fried Fish', 0.33)
           ],
           serving: 'MEAL'
         }),
@@ -57,7 +57,7 @@ function menuItems() {
         'Baked Fish (Child)': new menuItem({
           abbr: 'Baked Fish',
           ingredients: [
-            new menuItemIngredient('Baked Fish', 0.67)
+            new menuItemIngredient('Baked Fish', 0.33)
           ],
           serving: 'MEAL'
         }),
@@ -71,7 +71,7 @@ function menuItems() {
         'Fried Shrimp (Child)': new menuItem({
           abbr: 'Fried Shrimp',
           ingredients: [
-            new menuItemIngredient('Fried Shrimp', 0.67)
+            new menuItemIngredient('Fried Shrimp', 0.5)
           ],
           serving: 'MEAL'
         }),
@@ -85,15 +85,15 @@ function menuItems() {
         'Baked Shrimp (Child)': new menuItem({
           abbr: 'Baked Shrimp',
           ingredients: [
-            new menuItemIngredient('Baked Shrimp', 0.67)
+            new menuItemIngredient('Baked Shrimp', 0.5)
           ],
           serving: 'MEAL'
         }),
         'Baked Combo': new menuItem({
           abbr: 'Baked Combo',
           ingredients: [
-            new menuItemIngredient('Baked Fish', 0.5),
-            new menuItemIngredient('Baked Shrimp', 0.5)
+            new menuItemIngredient('Baked Fish', 0.67),
+            new menuItemIngredient('Baked Shrimp', 1)
           ],
           serving: 'MEAL'
         }),
@@ -101,15 +101,15 @@ function menuItems() {
           abbr: 'Baked Combo',
           ingredients: [
             new menuItemIngredient('Baked Fish', 0.33),
-            new menuItemIngredient('Baked Shrimp', 0.33)
+            new menuItemIngredient('Baked Shrimp', 0.5)
           ],
           serving: 'MEAL'
         }),
         'Fried Combo': new menuItem({
           abbr: 'Fried Combo',
           ingredients: [
-            new menuItemIngredient('Fried Fish', 0.5),
-            new menuItemIngredient('Fried Shrimp', 0.5)
+            new menuItemIngredient('Fried Fish', 0.67),
+            new menuItemIngredient('Fried Shrimp', 1)
           ],
           serving: 'MEAL'
         }),
@@ -117,7 +117,7 @@ function menuItems() {
           abbr: 'Fried Combo',
           ingredients: [
             new menuItemIngredient('Fried Fish', 0.33),
-            new menuItemIngredient('Fried Shrimp', 0.33)
+            new menuItemIngredient('Fried Shrimp', 0.5)
           ],
           serving: 'MEAL'
         }),

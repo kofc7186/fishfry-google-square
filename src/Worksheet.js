@@ -56,6 +56,7 @@ Worksheet.prototype.upsertTransaction = function (proposedOrder, paymentData) {
 
     if (rowIndex == -1) {
       // the transaction hasn't been inserted yet; let's just insert it
+      console.info({message:"upsertTransaction: adding order to sheet for payment " + proposedOrder['Payment ID'], initialData: proposedOrder});
       this.worksheet.append(proposedOrder);
 
       //set formula for wait time columns for the row you just inserted
@@ -67,7 +68,7 @@ Worksheet.prototype.upsertTransaction = function (proposedOrder, paymentData) {
     } else {
       // the transaction has already been inserted; we may need to update it
       var existingOrder = this.worksheet.getRowAsObject(rowIndex);
-      console.warn({message:"upsertTransaction: received an update to order " + proposedOrder['Payment ID'] + ": ", initialData: proposedOrder});
+      console.warn({message:"upsertTransaction: received an update to order " + proposedOrder['Payment ID'], initialData: proposedOrder});
 
       // reasons we'd be here:
       // (1) we're polling square instead of dealing with webhooks

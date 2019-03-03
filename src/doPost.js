@@ -33,7 +33,7 @@
  *
  */
 function doPost(e) {  
-  console.log({message: 'doPost: received payload', data: e});
+  console.log({message: 'doPost: received payload', initialData: e});
 
   if (e.hasOwnProperty('postData') && e.postData.type != "application/json") {
     var errMsg = "doPost: invalid input content type for payload";
@@ -42,6 +42,7 @@ function doPost(e) {
   }
   
   var input = JSON.parse(e.postData.contents);
+  console.log({message:"doPost: postData contents", initialData: input});
 
   var worksheet = new Worksheet();
   // test for query param to see if we should act to update online order data
@@ -53,8 +54,8 @@ function doPost(e) {
     if (input.event_type == 'PAYMENT_UPDATED'){
       var fmt_order = new FormatOrder();
       //FYI: this call can sleep up until 31 seconds waiting for a customer name to appear
-      var txn = fmt_order.SquareTransactionToSheet(input.location_id, input.entity_id);
-      worksheet.upsertTransaction(txn);
+      var txnObj = fmt_order.SquareTransactionToSheet(input.location_id, input.entity_id);
+      worksheet.upsertTransaction(txnObj.txn, txnObj.payment);
     }
   }
   

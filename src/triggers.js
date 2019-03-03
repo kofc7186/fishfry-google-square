@@ -110,9 +110,10 @@ function pullSquarePayments() {
   // it is still possible that in between the API call to square above and now that a webhook would have fired
   // duplicate entries for the same Square ID are protected inside upsertTransaction with a lock
   payments.forEach( function(payment) {
-    var order = fmt.SquareTransactionToSheet(api.default_location_id, payment.id);
+    var txnObj = fmt.SquareTransactionToSheet(api.default_location_id, payment.id, payment);
     console.log({message: "pullSquarePayments: attempting upsert for payment", data: payment, order: order});
-    worksheet.upsertTransaction(order);
+    //3/3/19: pass payment object here to save separate API call back to Square
+    worksheet.upsertTransaction(txnObj, payment);
   });
 }
 

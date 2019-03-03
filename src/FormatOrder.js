@@ -80,9 +80,10 @@ FormatOrder.prototype.getStateFromOrigin = function (origin){
  * @param {string} payment_id
  *   Order ID corresponding to Square Payment object
  */
-FormatOrder.prototype.SquareTransactionToSheet = function (location_id, payment_id) {
+FormatOrder.prototype.SquareTransactionToSheet = function (location_id, payment_id, orderDetails) {
   // try to get updated order details from Square
-  var orderDetails = this.api.OrderDetails(payment_id);
+  if (orderDetails == null | orderDetails === undefined)
+    orderDetails = this.api.OrderDetails(payment_id);
   //TODO: orderDetails.payment_url ; split this by '/' and take last token - this will be the transaction ID for v2 API
   // var paymentUrlArray = orderDetails.payment_url.split('/');
   // var transactionId = paymentUrlArray[paymentUrlArray.length-1];
@@ -91,8 +92,9 @@ FormatOrder.prototype.SquareTransactionToSheet = function (location_id, payment_
   var sleepTimer = 1000;
   while (txnMetadata.customer_id == undefined && sleepTimer <= 16000){
     console.log("SquareTransactionToSheet: didnt find customer name, trying again");
-    txnMetadata = this.api.TransactionMetadata(location_id, payment_id, orderDetails.created_at);
+    //put sleep before API call to make sure we get up-to-date information when evaluating while predicate
     Utilities.sleep(sleepTimer);
+    txnMetadata = this.api.TransactionMetadata(location_id, payment_id, orderDetails.created_at);
     sleepTimer *= 2;
   }
   var customerInfo = {};
@@ -100,7 +102,7 @@ FormatOrder.prototype.SquareTransactionToSheet = function (location_id, payment_
   if (txnMetadata.customer_id !== undefined){
     customerInfo = this.api.CustomerName(txnMetadata.customer_id);
   }
-  return this.ConvertSquareToSheet(txnMetadata, orderDetails, customerInfo);
+  return {txn: this.ConvertSquareToSheet(txnMetadata, orderDetails, customerInfo), payment: orderDetails};
 }
 
 FormatOrder.prototype.ConvertSquareToSheet = function(txnMetadata, orderDetails, customerInfo) {
@@ -146,6 +148,7 @@ FormatOrder.prototype.ConvertSquareToSheet = function(txnMetadata, orderDetails,
   //Below filter removes empty strings, undefined, null values and will return appropriate string
   var customerName = [customerInfo.given_name, customerInfo.family_name].filter(function(el) { return el; }).join(" ");
   //var customerName = ((customerInfo.given_name === undefined) ? "" : customerInfo.given_name) + " " + customerInfo.family_name;
+  var lastName = (customerInfo.family_name === undefined) ? customerName.split(" ").slice(-1)[0] : customerInfo.family_name ;
 
   // format data for Sheet
   var result = {
@@ -155,7 +158,7 @@ FormatOrder.prototype.ConvertSquareToSheet = function(txnMetadata, orderDetails,
     "Payment ID Prefix": orderDetails.id.substring(0,4),
     "Total Amount": parseInt(orderDetails.total_collected_money.amount)/100,
     "Order Received Date/Time": convertISODate(new Date(orderDetails.created_at)),
-    "Last Name": customerInfo.family_name,
+    "Last Name": lastName,
     "Customer Name": customerName,
     "Expedite": "No",
     "Note on Order": notes,
