@@ -73,11 +73,30 @@ Worksheet.prototype.upsertTransaction = function (proposedOrder, paymentData) {
       // reasons we'd be here:
       // (1) we're polling square instead of dealing with webhooks
       //     - in this case, the common path is that we don't need to make any changes
-      // (2) we got a webhook for a payment update (refund)
+      // (2) we got an updated customer name for the order
+      // (3) we got a webhook for a payment update (refund)
 
       if (existingOrder['Order State'] == "Cancelled") {
         console.log("upsertTransaction: payment " + proposedOrder['Payment ID'] + " has already been cancelled; skipping");
         return;
+      }
+
+      // check to see if name is not set for this order, and if we have an updated name
+      // set Customer Name and Last Name fields
+      if ((existingOrder['Customer Name'].trim() == "") && (proposedOrder['Customer Name'].trim() !== "")) {
+        console.log("upsertTransaction: received updated customer name for order " + proposedOrder['Payment ID']);
+        this.worksheet.updateCell(rowIndex,'Customer Name', proposedOrder['Customer Name']);
+        this.worksheet.updateCell(rowIndex,'Last Name', proposedOrder['Last Name']);
+        //we need to copy these values to use the old order number when passing the values to the label code
+        existingOrder['Customer Name'] = proposedOrder['Customer Name'];
+        existingOrder['Last Name'] = proposedOrder['Last Name'];
+        //these edits do not trigger a re-build of the label doc, so we need to manually do it here
+
+        var formatLabel = new FormatLabel();
+        var url = formatLabel.createLabelFileFromSheet(existingOrder);
+        console.log("new label doc for name update on order " + existingOrder['Payment ID'] + ": " + url);
+
+        this.worksheet.updateCell(rowIndex,'Label Doc Link', url);
       }
 
       // actions to take: check for refunds associated with this payment ID
@@ -138,7 +157,7 @@ Worksheet.prototype.upsertTransaction = function (proposedOrder, paymentData) {
             this.worksheet.updateCell(rowIndex,'Fried Fish', 0);
             this.worksheet.updateCell(rowIndex,'Baked Fish', 0);
             this.worksheet.updateCell(rowIndex,'Fried Shrimp', 0);
-            this.worksheet.updateCell(rowIndex,'Baked Shrimp', 0);
+            this.worksheet.updateCell(rowIndex,'Sauteed Shrimp', 0);
             this.worksheet.updateCell(rowIndex,'Mac & Cheese', 0);
             this.worksheet.updateCell(rowIndex,'Grilled Cheese', 0);
             this.worksheet.updateCell(rowIndex,'French Fries', 0);

@@ -90,7 +90,7 @@ FormatOrder.prototype.SquareTransactionToSheet = function (location_id, payment_
   // once you have the v2 transaction ID, you would need to reimplement TransactionMetadata to use RetrieveTransaction
   var txnMetadata = this.api.TransactionMetadata(location_id, payment_id, orderDetails.created_at);
   var sleepTimer = 1000;
-  while (txnMetadata.customer_id == undefined && sleepTimer <= 16000){
+  while (txnMetadata.customer_id == undefined && sleepTimer <= 4000){
     console.log("SquareTransactionToSheet: didnt find customer name, trying again");
     //put sleep before API call to make sure we get up-to-date information when evaluating while predicate
     Utilities.sleep(sleepTimer);
@@ -101,7 +101,18 @@ FormatOrder.prototype.SquareTransactionToSheet = function (location_id, payment_
   // don't bother calling to get a customer name if we don't have the customer ID
   if (txnMetadata.customer_id !== undefined){
     customerInfo = this.api.CustomerName(txnMetadata.customer_id);
+    console.log({message:"customerName result", data: customerInfo});
+    sleepTimer = 1000;
+    while (customerInfo.creation_source == "INSTANT_PROFILE" && sleepTimer <= 4000) {
+      console.log("SquareTransactionToSheet: didnt find customer name, trying again");
+      //put sleep before API call to make sure we get up-to-date information when evaluating while predicate
+      Utilities.sleep(sleepTimer);
+      customerInfo = this.api.CustomerName(txnMetadata.customer_id);
+      console.log({message:"customerName result", data: customerInfo});
+      sleepTimer *= 2;
+    }
   }
+
   return {txn: this.ConvertSquareToSheet(txnMetadata, orderDetails, customerInfo), payment: orderDetails};
 }
 

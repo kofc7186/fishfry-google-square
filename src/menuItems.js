@@ -3,7 +3,7 @@ function menuItems() {
         'Fried Fish',
         'Baked Fish',
         'Fried Shrimp',
-        'Baked Shrimp',
+        'Sauteed Shrimp',
         'Baked Combo',
         'Fried Combo',
         'Clam Chowder Soup',
@@ -16,7 +16,7 @@ function menuItems() {
         'Fried Fish',
         'Baked Fish',
         'Fried Shrimp',
-        'Baked Shrimp',
+        'Sauteed Shrimp',
         'Baked Combo',
         'Fried Combo',
         'Grilled Cheese',
@@ -75,17 +75,17 @@ function menuItems() {
           ],
           serving: 'MEAL'
         }),
-        'Baked Shrimp': new menuItem({
-          abbr: 'Baked Shrimp',
+        'Sauteed Shrimp': new menuItem({
+          abbr: 'Sauteed Shrimp',
           ingredients: [
-            new menuItemIngredient('Baked Shrimp', 1)
+            new menuItemIngredient('Sauteed Shrimp', 1)
           ],
           serving: 'MEAL'
         }),
-        'Baked Shrimp (Child)': new menuItem({
-          abbr: 'Baked Shrimp',
+        'Sauteed Shrimp (Child)': new menuItem({
+          abbr: 'Sauteed Shrimp',
           ingredients: [
-            new menuItemIngredient('Baked Shrimp', 0.5)
+            new menuItemIngredient('Sauteed Shrimp', 0.5)
           ],
           serving: 'MEAL'
         }),
@@ -93,7 +93,7 @@ function menuItems() {
           abbr: 'Baked Combo',
           ingredients: [
             new menuItemIngredient('Baked Fish', 0.67),
-            new menuItemIngredient('Baked Shrimp', 1)
+            new menuItemIngredient('Sauteed Shrimp', 1)
           ],
           serving: 'MEAL'
         }),
@@ -101,7 +101,7 @@ function menuItems() {
           abbr: 'Baked Combo',
           ingredients: [
             new menuItemIngredient('Baked Fish', 0.33),
-            new menuItemIngredient('Baked Shrimp', 0.5)
+            new menuItemIngredient('Sauteed Shrimp', 0.5)
           ],
           serving: 'MEAL'
         }),
