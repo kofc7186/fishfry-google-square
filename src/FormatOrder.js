@@ -159,6 +159,7 @@ FormatOrder.prototype.ConvertSquareToSheet = function(txnMetadata, orderDetails,
   //Below filter removes empty strings, undefined, null values and will return appropriate string
   var customerName = [customerInfo.given_name, customerInfo.family_name].filter(function(el) { return el; }).join(" ");
   //var customerName = ((customerInfo.given_name === undefined) ? "" : customerInfo.given_name) + " " + customerInfo.family_name;
+  //TODO: if family_name has multiple tokens, just choose the last one for lastName
   var lastName = (customerInfo.family_name === undefined) ? customerName.split(" ").slice(-1)[0] : customerInfo.family_name ;
 
   // format data for Sheet
@@ -173,7 +174,7 @@ FormatOrder.prototype.ConvertSquareToSheet = function(txnMetadata, orderDetails,
     "Customer Name": customerName,
     "Expedite": "No",
     "Note on Order": notes,
-    "Label Doc Link": fmtLabel.createLabelFile(orderNumber, orderDetails, customerName, JSON.parse(notes), mealCount, soupCount),
+    "Label Doc ID": fmtLabel.createLabelFile(orderNumber, orderDetails, customerName, JSON.parse(notes), mealCount, soupCount),
     "Order Venue": (this.getStateFromOrigin(txnMetadata.origin) == "Present") ? "In Person" : "Online",
     "Order State": this.getStateFromOrigin(txnMetadata.origin),
     "Square Receipt Link": orderDetails.receipt_url,
@@ -187,11 +188,11 @@ FormatOrder.prototype.ConvertSquareToSheet = function(txnMetadata, orderDetails,
     result[attrname] = ingredients[attrname];
   }
 
-  if (result['Label Doc Link'] == '') {
+  if (result['Label Doc ID'] == '') {
     // attempt to create the label again, using the data from Sheet rather than
-    result['Label Doc Link'] = createLabelFileFromSheet(result);
+    result['Label Doc ID'] = createLabelFileFromSheet(result);
   }
-
+  
   return result;
 }
 

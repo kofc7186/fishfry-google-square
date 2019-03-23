@@ -89,10 +89,10 @@ FormatLabel.prototype.formatLabelFromSquare = function(body, orderNumber, orderD
       // 26 characters at 14pt
       var line1 = body
         .appendParagraph(pad('    ', orderNumber.toString(), true)
-          + '                     '
-          + pad(' ', mealCount.toString(), true)
+          + '                    '
+          + ((mealCount >= 10) ? mealCount.toString() : pad(' ', mealCount.toString(), true))
           + " of "
-          + pad(' ', totalMeals.toString(), true))
+          + ((totalMeals >= 10) ? totalMeals.toString() : pad(' ', totalMeals.toString(), true)))
         .setFontFamily(font)
         .setSpacingAfter(0)
         .setBold(true)
@@ -213,6 +213,32 @@ FormatLabel.prototype.formatLabelFromSquare = function(body, orderNumber, orderD
 }
 
 FormatLabel.prototype.createLabelFile = function(orderNumber, orderDetails, customerName, notes, totalMeals, totalSoups) {
+  var wordDocTitle = "Order " + orderNumber + ": " + customerName;
+  var lock = LockService.getUserLock();
+  while (!lock.tryLock(1000)){
+    console.log("FormatLabel.createLabelFile: failed to get single label doc lock, retrying");
+  }
+  try {
+    // The following ID is hardcoded as we are reusing a single Google Doc to avoid hitting DocumentApp.create() quotas
+    var templateDoc = DocumentApp.openById("18x8zF98Rvh1WgMaWsMASYzcPiXweoTivxWxL70Hmbc8");
+    var body = templateDoc.getBody().clear();
+    this.formatLabelFromSquare(body, orderNumber, orderDetails, customerName, notes, totalMeals, totalSoups);
+    templateDoc.saveAndClose();
+    var blob = templateDoc.getAs(MimeType.PDF);
+  }
+  catch (e) {
+    throw e;
+  }
+  finally {
+    if (lock)
+      lock.releaseLock();
+  }
+  var labelFile = DriveApp.createFile(blob);
+  labelFile.setName(wordDocTitle);
+  this.getLabelFolder().addFile(labelFile);
+  DriveApp.getRootFolder().removeFile(labelFile);
+  return labelFile.getId();
+  /*
   var editableLabelDoc = this.newLabelTemplate("Order " + orderNumber + ": " + customerName);
   //for each meal, enter into label
 
@@ -221,12 +247,39 @@ FormatLabel.prototype.createLabelFile = function(orderNumber, orderDetails, cust
   var url = editableLabelDoc.getUrl();
   editableLabelDoc.saveAndClose();
   return url;
-
+  */
 }
 /*
  * Create label from Sheet data
  */
 FormatLabel.prototype.createLabelFileFromSheet = function(orderSheetData) {
+  var wordDocTitle = "Order " + orderSheetData['Order Number'] + ": " + orderSheetData['Customer Name'];
+  var lock = LockService.getUserLock();
+  while (!lock.tryLock(1000)){
+    console.log("FormatLabel.createLabelFileFromSheet: failed to get single label doc lock, retrying");
+  }
+  try {
+    // The following ID is hardcoded as we are reusing a single Google Doc to avoid hitting DocumentApp.create() quotas
+    var templateDoc = DocumentApp.openById("18x8zF98Rvh1WgMaWsMASYzcPiXweoTivxWxL70Hmbc8");
+    var body = templateDoc.getBody().clear();
+    var squareOrderDetails = this.api.OrderDetails(orderSheetData['Payment ID']);
+    this.formatLabelFromSquare(body, orderSheetData['Order Number'], squareOrderDetails, orderSheetData['Customer Name'], JSON.parse(orderSheetData['Note on Order']), parseInt(orderSheetData['Total Meals']), parseInt(orderSheetData['Total Soups']));
+    templateDoc.saveAndClose();
+    var blob = templateDoc.getAs(MimeType.PDF);
+  }
+  catch (e) {
+    throw e;
+  }
+  finally {
+    if (lock)
+      lock.releaseLock();
+  }
+  var labelFile = DriveApp.createFile(blob);
+  labelFile.setName(wordDocTitle);
+  this.getLabelFolder().addFile(labelFile);
+  DriveApp.getRootFolder().removeFile(labelFile);
+  return labelFile.getId();
+  /*
   //As Order Number + Customer name should be globally unique, this should make it easy to find in the Drive folder
   var editableLabelDoc = this.newLabelTemplate("Order " + orderSheetData['Order Number'] + ": " + orderSheetData['Customer Name']);
   var body = editableLabelDoc.getBody();//.setText('');
@@ -235,4 +288,5 @@ FormatLabel.prototype.createLabelFileFromSheet = function(orderSheetData) {
   var url = editableLabelDoc.getUrl();
   editableLabelDoc.saveAndClose();
   return url;
+  */
 }

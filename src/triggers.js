@@ -54,10 +54,10 @@ function onEditInstalled(e){
       console.log("onEdit: received update for " + cell + "; regenerating label doc");
 
       var formatLabel = new FormatLabel();
-      var url = formatLabel.createLabelFileFromSheet(orderDetails);
-      console.log("onEdit: new label doc for " + cell + ": " + url);
+      var id = formatLabel.createLabelFileFromSheet(orderDetails);
+      console.log("onEdit: new label doc for " + cell + ": " + id);
 
-      worksheet.updateCell(rowIndex, 'Label Doc Link', url);
+      worksheet.updateCell(rowIndex, 'Label Doc ID', id);
     }
   }
 }
@@ -111,7 +111,7 @@ function pullSquarePayments() {
   // duplicate entries for the same Square ID are protected inside upsertTransaction with a lock
   payments.forEach( function(payment) {
     var txnObj = fmt.SquareTransactionToSheet(api.default_location_id, payment.id, payment);
-    console.log({message: "pullSquarePayments: attempting upsert for payment", data: payment, order: order});
+    console.log({message: "pullSquarePayments: attempting upsert for payment", data: payment, order: txnObj.txn});
     //3/3/19: pass payment object here to save separate API call back to Square
     worksheet.upsertTransaction(txnObj.txn, payment);
   });

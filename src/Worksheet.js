@@ -93,10 +93,10 @@ Worksheet.prototype.upsertTransaction = function (proposedOrder, paymentData) {
         //these edits do not trigger a re-build of the label doc, so we need to manually do it here
 
         var formatLabel = new FormatLabel();
-        var url = formatLabel.createLabelFileFromSheet(existingOrder);
+        var id = formatLabel.createLabelFileFromSheet(existingOrder);
         console.log("new label doc for name update on order " + existingOrder['Payment ID'] + ": " + url);
 
-        this.worksheet.updateCell(rowIndex,'Label Doc Link', url);
+        this.worksheet.updateCell(rowIndex,'Label Doc ID', id);
       }
 
       // actions to take: check for refunds associated with this payment ID
@@ -270,16 +270,16 @@ Worksheet.prototype.printLabel = function(orderNumber, printerId, advanceState) 
   }
 
   // retrieve filename from row
-  if (order['Label Doc Link'] == "") {
+  if (order['Label Doc ID'] == "") {
     // the label was not generated yet, so attempt now
     var fmtLabel = new FormatLabel();
-    order['Label Doc Link'] = fmtLabel.createLabelFileFromSheet(order);
+    order['Label Doc ID'] = fmtLabel.createLabelFileFromSheet(order);
     // we need to update this cell directly as orm.update() will blow away formulas
-    this.worksheet.updateCell(rowIndex, 'Label Doc Link', order['Label Doc Link']);
+    this.worksheet.updateCell(rowIndex, 'Label Doc ID', order['Label Doc ID']);
   }
 
   var printer = new Printer(printerId);
-  if (printer.PrintFileUrl(order['Label Doc Link']) !== true) {
+  if (printer.PrintFileUrl(order['Label Doc ID']) !== true) {
     var errMsg = 'printLabel: Print was unsuccessful for order: ' + orderNumber;
     console.error(errMsg);
     Browser.msgBox(errMsg);
@@ -435,7 +435,7 @@ Worksheet.prototype.updateNotesForOnlineOrders = function(onlineOrderData) {
 
     //regenerate the labels now that we have the notes
     var fmtLabel = new FormatLabel();
-    var newLabelUrl = fmtLabel.createLabelFileFromSheet(match[0]);
-    this.worksheet.updateCell(rowIndex,'Label Doc Link', newLabelUrl);
+    var newLabelId = fmtLabel.createLabelFileFromSheet(match[0]);
+    this.worksheet.updateCell(rowIndex,'Label Doc ID', newLabelId);
   }, this);
 }

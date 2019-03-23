@@ -99,16 +99,16 @@ Printer.prototype.getPrinterList = function() {
 
 Printer.prototype.PrintFileUrl = function(filename_url) {
   // verify filename exists and we have access to it
-  var file = null;
   try {
-    console.log("PrintFileUrl: " + filename_url);
-    file = DocumentApp.openByUrl(filename_url);
+    var file = DriveApp.getFileById(filename_url);
+    return this.PrintGoogleDocument(file.getId(), file.getName());
+    //return this.PrintFileId(this.IdFromUrl(filename_url));    
   } catch (e) {
-    console.error({message: "PrintFileUrl: exception opening by url, will try by ID", data: e});
-    // TODO: sometimes it's unable to open the URL, but if we pass the ID it will succeed...
-    return this.PrintFileId(this.IdFromUrl(filename_url));
+    console.error({message: "PrintFileUrl: exception opening by id, will try by url", data: e, url: filename_url});
+    /*var file = DocumentApp.openByUrl(filename_url);
+    return this.PrintGoogleDocument(file.getId(), file.getName());*/
+    return this.PrintFileId(this.IdFromUrl(filename_url)); 
   }
-  return this.PrintGoogleDocument(file.getId(), file.getName());
 }
 
 Printer.prototype.IdFromUrl = function(str) {
@@ -153,7 +153,7 @@ Printer.prototype.PrintGoogleDocument = function(docID, docName) {
     "printerid" : this.printerId,
     "title"     : docName,
     "content"   : docID,
-    "contentType": "google.kix",
+    "contentType": "google.drive",//"google.kix",
     "ticket"    : JSON.stringify(ticket)
   };
 
