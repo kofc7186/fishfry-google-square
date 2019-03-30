@@ -100,7 +100,10 @@ function loggedUrlFetch(url, params, paginate) {
       }
     }
     else {
-      return JSON.parse(response.getContentText());
+      if (response.getAllHeaders()['Content-Type'].indexOf("json") !== -1)
+        return JSON.parse(response.getContentText());
+      else
+        return {};
     }
   } catch (e) {
     console.error({message: "loggedUrlFetch: UrlFetchApp.fetch() returned error", data: e});

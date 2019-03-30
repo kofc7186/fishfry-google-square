@@ -121,6 +121,7 @@ Worksheet.prototype.upsertTransaction = function (proposedOrder, paymentData) {
         //compute new total amount
         var newAmount = (parseInt(paymentData.total_collected_money.amount) +
                          parseInt(paymentData.refunded_money.amount))/100;//refunded money is a negative #
+        console.log("upsertTransaction: comparing newAmount ("+newAmount+") to existingAmount ("+parseInt(existingOrder['Total Amount'])+")");
         if (newAmount == parseInt(existingOrder['Total Amount'])){
           console.log("upsertTransaction: received refund webhook but it appears we're up to date.. skipping");
           return;
