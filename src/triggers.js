@@ -16,12 +16,6 @@ function onOpen() {
     .addItem('Simulate New Order', 'simulateNewOrder')
     .addToUi();
 
-  SpreadsheetApp.getUi()
-    .createMenu('CloudPrint')
-    .addItem('Authorization URL', 'testPrinterAccess')
-    .addItem('Show Printers', 'showPrinters')
-    .addItem('Logout','logoutPrintOAuth')
-    .addToUi();
   //TODO: validate/install triggers
 }
 
@@ -168,6 +162,7 @@ function showOnlineCheckinPageUrl() {
   Browser.msgBox(ScriptApp.getService().getUrl());
 }
 
+/*
 function testPrinterAccess() {
   var printer = new Printer();
   Browser.msgBox(printer.showAuthorizationURL());
@@ -191,17 +186,18 @@ function showPrinters(returnList) {
     return printers;
   }
 }
+*/
 
-function printLabel(order_id, printer_id) {
+function printLabel(order_id) {
   var worksheet = new Worksheet();
   // the following call will print label & advance state
-  worksheet.printLabel(order_id, printer_id);
+  worksheet.printLabel(order_id);
 }
 
-function reprintLabel(order_id, printer_id) {
+function reprintLabel(order_id) {
   var worksheet = new Worksheet();
   // we do not validate nor check state for reprinting here
-  worksheet.reprintLabel(order_id, printer_id);
+  worksheet.reprintLabel(order_id);
 }
 
 function markPresent(order_id) {

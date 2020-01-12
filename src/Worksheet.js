@@ -243,11 +243,11 @@ Worksheet.prototype.updateWaitTimeFormulas = function (rowIndex) {
   this.worksheet.worksheet.getRange(orderStateMessageCell).setFormula(orderStateMessageFormula);
 }
 
-Worksheet.prototype.reprintLabel = function (orderNumber, printerId) {
-  this.printLabel(orderNumber, printerId, false);
+Worksheet.prototype.reprintLabel = function (orderNumber) {
+  this.printLabel(orderNumber, false);
 }
 
-Worksheet.prototype.printLabel = function(orderNumber, printerId, advanceState) {
+Worksheet.prototype.printLabel = function(orderNumber, advanceState) {
   if (typeof(advanceState)==='undefined'){
     advanceState = true;
   }
@@ -279,8 +279,7 @@ Worksheet.prototype.printLabel = function(orderNumber, printerId, advanceState) 
     this.worksheet.updateCell(rowIndex, 'Label Doc ID', order['Label Doc ID']);
   }
 
-  var printer = new Printer(printerId);
-  if (printer.PrintFileUrl(order['Label Doc ID']) !== true) {
+  if (pubsubPrint(orderNumber, order['Label Doc ID'], advanceState == false) !== true){
     var errMsg = 'printLabel: Print was unsuccessful for order: ' + orderNumber;
     console.error(errMsg);
     Browser.msgBox(errMsg);

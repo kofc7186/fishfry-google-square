@@ -140,3 +140,8 @@ function getStartOrderSearchTime() {
 function getLabelFolderName() {
   return getGlobals()["Label Folder Name"];
 }
+
+// pulls value from globals
+function getEventID() {
+  return getGlobals()["Event ID"];
+}

@@ -51,15 +51,6 @@
 <div class="orderListDiv">
   <ul id="orderList"></ul>
 </div>
-<div class="printerDiv">
-  <fieldset>
-    <legend>Printer:</legend>
-    <i>Select which printer to send the document to:</i>
-    <select id='printerOptions' >
-
-    </select>
-  </fieldset>
-</div>
 <div class="printDiv">
  <form>
    <fieldset>
@@ -101,21 +92,7 @@
         reprintLabel();
       }
     });
-    // get a list of available printers
-    google.script.run.withSuccessHandler(printersAvailable).showPrinters(true);
   });
-
-  function printersAvailable(arg) {
-    console.log(arg);
-    var select = document.getElementById('printerOptions');
-    for (var i in arg) {
-      var option = document.createElement('option');
-      option.text = arg[i].displayName;
-      option.value = arg[i].id;
-      select.appendChild(option);
-    }
-  }
-
   function validateOrderNumber(orderNumber) {
     if (orderNumber === null || orderNumber === undefined || orderNumber == "") {
       alert("Order Number not specified!");
@@ -132,10 +109,8 @@
       $("#spinner").hide();
       return;
     }
-    var select = document.getElementById('printerOptions');
-    console.log(select.value);
     //TODO: need callback from server to confirm correct order_id to user ... it fails silently now
-    google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).printLabel(order.value, select.value);
+    google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).printLabel(order.value);
     $(":input").prop("disabled", true);
   };
 
@@ -147,10 +122,9 @@
       $("#spinner").hide();
       return;
     }
-    var select = document.getElementById('printerOptions');
 
     //TODO: need callback from server to confirm correct order_id to user ... it fails silently now
-    google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).reprintLabel(order.value, select.value);
+    google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFailure).reprintLabel(order.value);
     $(":input").prop("disabled", true);
   };
 
