@@ -61,6 +61,7 @@ FormatOrder.prototype.getStateFromOrigin = function (origin){
       return "Present";
       break;
     case "ONLINE_STORE":
+    case "EXTERNAL_API":
       return "Paid Online";
       break;
     default:

@@ -75,11 +75,16 @@ function doPost(e) {
 }
 
 function processWebhook(e) {
-  console.log({message: "processWebhook: running for form post", initialData: e});
+  console.log({message: "processWebhook: running for form post", initialData: JSON.stringify(e)});
   
   var location_id = e.namedValues['location_id'][0];
   var entity_id   = e.namedValues['entity_id'][0];
   
+  if (location_id.trim() == "" || entity_id.trim() == "") {
+    console.error("processWebhook: location_id or entity_id not found");
+    return;
+  }
+
   var fmt_order = new FormatOrder();
   var worksheet = new Worksheet();
 
@@ -95,4 +100,5 @@ function submitForm(location_id,entity_id) {
   url += "&entry.1610179935=" + entity_id;
   url += "&submit=Submit";
   loggedUrlFetch(url, {'method':'post'});
-}   
+}
+

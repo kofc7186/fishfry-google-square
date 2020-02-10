@@ -100,9 +100,14 @@ Printer.prototype.getPrinterList = function() {
 Printer.prototype.PrintFileUrl = function(filename_url) {
   // verify filename exists and we have access to it
   try {
-    var file = DriveApp.getFileById(filename_url);
+    if (filename_url.indexOf("http") == 0){
+      var file = DriveApp.getFileById(this.IdFromUrl(filename_url));
+      //return this.PrintFileId(this.IdFromUrl(filename_url));
+    }
+    else {
+      var file = DriveApp.getFileById(filename_url);
+    }
     return this.PrintGoogleDocument(file.getId(), file.getName());
-    //return this.PrintFileId(this.IdFromUrl(filename_url));    
   } catch (e) {
     console.error({message: "PrintFileUrl: exception opening by id, will try by url", data: e, url: filename_url});
     /*var file = DocumentApp.openByUrl(filename_url);
@@ -148,12 +153,19 @@ Printer.prototype.PrintGoogleDocument = function(docID, docName) {
     }
   };
 
+  var mime = DriveApp.getFileById(docID).getMimeType();
+  var contentType = "";
+  if (mime == "application/pdf")
+    contentType = "google.drive";
+  else if (mime == "application/vnd.google-apps.document")
+    contentType = "google.kix";
+
   // https://stackoverflow.com/questions/30565554/oauth2-with-google-cloud-print
   var payload = {
     "printerid" : this.printerId,
     "title"     : docName,
     "content"   : docID,
-    "contentType": "google.drive",//"google.kix",
+    "contentType": contentType, //"google.drive",//"google.kix",
     "ticket"    : JSON.stringify(ticket)
   };
 
