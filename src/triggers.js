@@ -226,3 +226,43 @@ function advanceState(order_id) {
 
   Browser.msgBox(order_id + " transitioned to " + state);
 }
+
+function fixCustomerNames() {
+  var worksheet = new Worksheet();
+
+  var allOrders = worksheet.all();
+
+  var noNameOrders = allOrders.filter(function(sheetOrder) {
+    return (sheetOrder['Customer Name'].trim().length == 0);
+  });
+
+  if (noNameOrders.length == 0)
+    return;
+
+  noNameOrders.forEach(function(order) {
+    // try to see if customer name has now been set
+    console.log("fixCustomerNames: checking for payment "+order['Payment ID'])
+    var api = new squareAPI();
+    var paymentData = api.OrderDetails(order['Payment ID']);
+
+    var xactionMetadata = api.TransactionMetadata(api.default_location_id, paymentData.order_id, paymentData.created_at);
+
+    var customerInfo = api.CustomerName(xactionMetadata.customer_id);
+
+    // if names came back set in the customer info, then update the sheet
+    if ((customerInfo.given_name.trim().length > 0) && (customerInfo.family_name.trim().length > 0)) {
+      // if yes, update cells, trigger label regeneration
+      var extractedNames = extractCustomerNames(customerInfo);
+      var formatLabel = new FormatLabel();
+      var id = formatLabel.createLabelFileFromSheet(order);
+
+      var rowIndex = worksheet.searchForTransaction('Payment ID', order['Payment ID']);
+
+      worksheet.updateCell(rowIndex, 'Last Name', extractedNames.lastName);
+      worksheet.updateCell(rowIndex, 'Customer Name', extractedNames.customerName);
+      worksheet.updateCell(rowIndex, 'Label Doc ID', id);
+    }
+    // if no, just continue to next
+  });
+
+}
