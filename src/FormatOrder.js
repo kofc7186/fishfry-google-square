@@ -104,7 +104,7 @@ FormatOrder.prototype.SquareTransactionToSheet = function (location_id, payment_
     customerInfo = this.api.CustomerName(txnMetadata.customer_id);
     console.log({message:"customerName result", data: customerInfo});
     sleepTimer = 1000;
-    while (customerInfo.creation_source == "INSTANT_PROFILE" && sleepTimer <= 4000) {
+    while ((!customerInfo.hasOwnProperty("given_name")) && (customerInfo.creation_source == "INSTANT_PROFILE") && (sleepTimer <= 4000)) {
       console.log("SquareTransactionToSheet: didnt find customer name, trying again");
       //put sleep before API call to make sure we get up-to-date information when evaluating while predicate
       Utilities.sleep(sleepTimer);
