@@ -230,7 +230,7 @@ function advanceState(order_id) {
 function fixCustomerNames() {
   var worksheet = new Worksheet();
 
-  var allOrders = worksheet.all();
+  var allOrders = worksheet.worksheet.all();
 
   var noNameOrders = allOrders.filter(function(sheetOrder) {
     return (sheetOrder['Customer Name'].trim().length == 0);
@@ -245,7 +245,7 @@ function fixCustomerNames() {
     var api = new squareAPI();
     var paymentData = api.OrderDetails(order['Payment ID']);
 
-    var xactionMetadata = api.TransactionMetadata(api.default_location_id, paymentData.order_id, paymentData.created_at);
+    var xactionMetadata = api.TransactionMetadata(api.default_location_id, order['Payment ID'], paymentData.created_at);
 
     var customerInfo = api.CustomerName(xactionMetadata.customer_id);
 
@@ -258,9 +258,9 @@ function fixCustomerNames() {
 
       var rowIndex = worksheet.searchForTransaction('Payment ID', order['Payment ID']);
 
-      worksheet.updateCell(rowIndex, 'Last Name', extractedNames.lastName);
-      worksheet.updateCell(rowIndex, 'Customer Name', extractedNames.customerName);
-      worksheet.updateCell(rowIndex, 'Label Doc ID', id);
+      worksheet.worksheet.updateCell(rowIndex, 'Last Name', extractedNames.lastName);
+      worksheet.worksheet.updateCell(rowIndex, 'Customer Name', extractedNames.customerName);
+      worksheet.worksheet.updateCell(rowIndex, 'Label Doc ID', id);
     }
     // if no, just continue to next
   });
