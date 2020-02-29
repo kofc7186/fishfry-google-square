@@ -64,13 +64,12 @@ function onEditInstalled(e){
 
 function pullPaymentsOff() {
   // Delete existing triggers
-  // TODO: this blindly deletes ALL clock triggers
-  var clockTriggers = ScriptApp.getProjectTriggers().filter(function (trigger) { return trigger.getEventType() === ScriptApp.EventType.CLOCK; });
-  for(var i in clockTriggers) {
-    ScriptApp.deleteTrigger(clockTriggers[i]);
+  var pullTriggers = ScriptApp.getProjectTriggers().filter(function (trigger) { return trigger.getHandlerFunction() === "pullSquarePayments"; });
+  for(var i in pullTriggers) {
+    ScriptApp.deleteTrigger(pullTriggers[i]);
   }
 
-  Browser.msgBox("Script successfully deleted all scheduled triggers.");
+  Browser.msgBox("Script successfully deleted all pull scheduled triggers.");
 }
 
 function pullPaymentsOn() {
