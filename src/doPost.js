@@ -101,4 +101,3 @@ function submitForm(location_id,entity_id) {
   url += "&submit=Submit";
   loggedUrlFetch(url, {'method':'post'});
 }
-

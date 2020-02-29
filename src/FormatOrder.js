@@ -157,11 +157,7 @@ FormatOrder.prototype.ConvertSquareToSheet = function(txnMetadata, orderDetails,
   var orderNumber = this.getOrderNumberAtomic();
   var fmtLabel = new FormatLabel();
   var notes = this.createNoteString(orderDetails);
-  //Below filter removes empty strings, undefined, null values and will return appropriate string
-  var customerName = [customerInfo.given_name, customerInfo.family_name].filter(function(el) { return el; }).join(" ");
-  //var customerName = ((customerInfo.given_name === undefined) ? "" : customerInfo.given_name) + " " + customerInfo.family_name;
-  //TODO: if family_name has multiple tokens, just choose the last one for lastName
-  var lastName = (customerInfo.family_name === undefined) ? customerName.split(" ").slice(-1)[0] : customerInfo.family_name ;
+  var extractedNames = extractCustomerNames(customerInfo);
 
   // format data for Sheet
   var result = {
@@ -171,8 +167,8 @@ FormatOrder.prototype.ConvertSquareToSheet = function(txnMetadata, orderDetails,
     "Payment ID Prefix": orderDetails.id.substring(0,4),
     "Total Amount": parseInt(orderDetails.total_collected_money.amount)/100,
     "Order Received Date/Time": convertISODate(new Date(orderDetails.created_at)),
-    "Last Name": lastName,
-    "Customer Name": customerName,
+    "Last Name": extractedNames.lastName,
+    "Customer Name": extractedNames.customerName,
     "Expedite": "No",
     "Note on Order": notes,
     "Label Doc ID": fmtLabel.createLabelFile(orderNumber, orderDetails, customerName, JSON.parse(notes), mealCount, soupCount),
@@ -226,4 +222,13 @@ FormatOrder.prototype.createNoteString = function(orderDetails) {
   });
 
   return JSON.stringify(notes);
+}
+
+function extractCustomerNames(customerInfo) {
+  //Below filter removes empty strings, undefined, null values and will return appropriate string
+  var customerName = [customerInfo.given_name, customerInfo.family_name].filter(function(el) { return el; }).join(" ");
+  //var customerName = ((customerInfo.given_name === undefined) ? "" : customerInfo.given_name) + " " + customerInfo.family_name;
+  //TODO: if family_name has multiple tokens, just choose the last one for lastName
+  var lastName = (customerInfo.family_name === undefined) ? customerName.split(" ").slice(-1)[0] : customerInfo.family_name ;
+  return {customerName: customerName, lastName: lastName};
 }
