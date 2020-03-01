@@ -7,6 +7,7 @@
       "version": "32"
     }]
   },
+  "runtimeVersion": "DEPRECATED_ES5",
   "webapp": {
     "access": "ANYONE_ANONYMOUS",
     "executeAs": "USER_DEPLOYING"
