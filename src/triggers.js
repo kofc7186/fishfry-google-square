@@ -252,13 +252,18 @@ function fixCustomerNames() {
     if ((customerInfo.given_name.trim().length > 0) && (customerInfo.family_name.trim().length > 0)) {
       // if yes, update cells, trigger label regeneration
       var extractedNames = extractCustomerNames(customerInfo);
-      var formatLabel = new FormatLabel();
-      var id = formatLabel.createLabelFileFromSheet(order);
 
       var rowIndex = worksheet.searchForTransaction('Payment ID', order['Payment ID']);
 
       worksheet.worksheet.updateCell(rowIndex, 'Last Name', extractedNames.lastName);
       worksheet.worksheet.updateCell(rowIndex, 'Customer Name', extractedNames.customerName);
+      
+      // we overwrite these values here instead of making a round trip to the sheet
+      order['Last Name'] = extractedNames.lastName;
+      order['Customer Name'] = extractedNames.customerName;
+      
+      var formatLabel = new FormatLabel();
+      var id = formatLabel.createLabelFileFromSheet(order);
       worksheet.worksheet.updateCell(rowIndex, 'Label Doc ID', id);
     }
     // if no, just continue to next
