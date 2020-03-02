@@ -249,7 +249,7 @@ function fixCustomerNames() {
     var customerInfo = api.CustomerName(xactionMetadata.customer_id);
 
     // if names came back set in the customer info, then update the sheet
-    if (customerInfo.hasOwnProperry("given_name") && customerInfo.hasOwnProperty("family_name")) {
+    if (customerInfo.hasOwnProperty("given_name") && customerInfo.hasOwnProperty("family_name")) {
       // if yes, update cells, trigger label regeneration
       var extractedNames = extractCustomerNames(customerInfo);
 
