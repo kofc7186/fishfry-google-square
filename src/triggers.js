@@ -211,7 +211,16 @@ function markPresent(order_id) {
 
 function markReady(order_id) {
   var worksheet = new Worksheet();
-  worksheet.validateAndAdvanceState(order_id,'Labeled');
+  var rowIndex = worksheet.validateAndAdvanceState(order_id,'Labeled');
+  //SMS
+  if (rowIndex != -1) {
+    try {
+      sendOrderReadySMS(rowIndex);
+    }
+    catch(err) {
+      console.error(err);
+    }
+  }
 }
 
 function markClosed(order_id) {
@@ -242,11 +251,7 @@ function fixCustomerNames() {
     // try to see if customer name has now been set
     console.log("fixCustomerNames: checking for payment "+order['Payment ID'])
     var api = new squareAPI();
-    var paymentData = api.OrderDetails(order['Payment ID']);
-
-    var xactionMetadata = api.TransactionMetadata(api.default_location_id, order['Payment ID'], paymentData.created_at);
-
-    var customerInfo = api.CustomerName(xactionMetadata.customer_id);
+    var customerInfo = api.CustomerInfo(order['Customer ID']);
 
     // if names came back set in the customer info, then update the sheet
     if (customerInfo.hasOwnProperty("given_name") && customerInfo.hasOwnProperty("family_name")) {

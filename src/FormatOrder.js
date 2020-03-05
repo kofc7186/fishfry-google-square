@@ -101,15 +101,15 @@ FormatOrder.prototype.SquareTransactionToSheet = function (location_id, payment_
   var customerInfo = {};
   // don't bother calling to get a customer name if we don't have the customer ID
   if (txnMetadata.customer_id !== undefined){
-    customerInfo = this.api.CustomerName(txnMetadata.customer_id);
-    console.log({message:"customerName result", data: customerInfo});
+    customerInfo = this.api.CustomerInfo(txnMetadata.customer_id);
+    console.log({message:"customerInfo result", data: customerInfo});
     sleepTimer = 1000;
     while ((!customerInfo.hasOwnProperty("given_name")) && (customerInfo.creation_source == "INSTANT_PROFILE") && (sleepTimer <= 4000)) {
       console.log("SquareTransactionToSheet: didnt find customer name, trying again");
       //put sleep before API call to make sure we get up-to-date information when evaluating while predicate
       Utilities.sleep(sleepTimer);
-      customerInfo = this.api.CustomerName(txnMetadata.customer_id);
-      console.log({message:"customerName result", data: customerInfo});
+      customerInfo = this.api.CustomerInfo(txnMetadata.customer_id);
+      console.log({message:"customerInfo result", data: customerInfo});
       sleepTimer *= 2;
     }
   }
@@ -178,7 +178,9 @@ FormatOrder.prototype.ConvertSquareToSheet = function(txnMetadata, orderDetails,
     "Time Present": (this.getStateFromOrigin(txnMetadata.origin) == "Present") ? convertISODate(new Date()) : "",
     "Total Meals": mealCount,
     "Total Soups": soupCount,
-    "Soup": soupCount
+    "Soup": soupCount,
+    "Transaction ID": txnMetadata.xaction_id,
+    "Customer ID": customerInfo.id
   };
   // Add item details
   for (var attrname in ingredients) {

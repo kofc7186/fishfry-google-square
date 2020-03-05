@@ -75,8 +75,8 @@ squareAPI.prototype.TransactionDetails = function(location_id, created_at) {
  * @returns {object} customer object
  * @throws Will throw an error if the API call to Square is not successful for any reason (including customer_id not found)
  */
-squareAPI.prototype.CustomerName = function(customer_id) {
-  console.log("CustomerName: input is " + customer_id);
+squareAPI.prototype.CustomerInfo = function(customer_id) {
+  console.log("CustomerInfo: input is " + customer_id);
   if (customer_id == "")
     return "";
 
@@ -86,7 +86,7 @@ squareAPI.prototype.CustomerName = function(customer_id) {
   try {
     return responseObj.customer;//.given_name + " " + responseObj.customer.family_name;
   } catch (e) {
-    console.error({message: "CustomerName: could not fetch name from Square API response", data: responseObj});
+    console.error({message: "CustomerInfo: could not fetch name from Square API response", data: responseObj});
     return "";
   }
 }
@@ -97,6 +97,7 @@ squareAPI.prototype.TransactionMetadata = function (location_id, order_id, creat
   // the Square V2 API nests this data underneath a transaction object
   var origin = "";
   var customer_id = "";
+  var xaction_id = "";
   var note = "";
   
   console.log({message: "TransactionMetadata: Txn details", data: responseObj});
@@ -109,6 +110,7 @@ squareAPI.prototype.TransactionMetadata = function (location_id, order_id, creat
       if (tender.id == order_id) {
         origin = txn.product; //REGISTER or ONLINE_STORE or EXTERNAL_API
         customer_id = tender.customer_id; //we store this to query the customer's name
+        xaction_id = txn.id;
         note = tender.note;
         return true;
       }
@@ -122,7 +124,7 @@ squareAPI.prototype.TransactionMetadata = function (location_id, order_id, creat
     throw errMsg;
   }
 
-  return {origin: origin, customer_id: customer_id, note: note};
+  return {origin: origin, customer_id: customer_id, note: note, xaction_id: xaction_id};
 }
 
 squareAPI.prototype.locations = function() {
