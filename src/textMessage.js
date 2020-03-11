@@ -25,7 +25,7 @@ function sendOrderReadySMS(rowIndex){
   var order = worksheet.worksheet.getRowAsObject(rowIndex);
 
   var api = new squareAPI();
-  var customerInfo = api.CustomerName(order['Customer ID']);
+  var customerInfo = api.CustomerInfo(order['Customer ID']);
 
   // if we don't have a phone number, just bail
   if (!customerInfo.hasOwnProperty("phone_number") || customerInfo.phone_number.trim() == "")
@@ -40,6 +40,6 @@ function sendOrderReadySMS(rowIndex){
     phone = prefix + phone;
   phone = '+' + phone;
 
-  sendTextMessage(order['Customer Name'] + ", your order #" + order['Order Number'] + " is now ready for pickup. Thanks for supporting the K of C Fish Fry!",
+  sendTextMessage(order['Customer Name'] + ", your order #" + order['Order Number'] + " is now ready for pickup. Thanks for supporting the K of C Fish Fry! Reply with STOP to stop receiving these messages.",
                   [phone]);
 }
