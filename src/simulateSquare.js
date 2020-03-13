@@ -23,7 +23,7 @@ simulateSquare.prototype.NewTransaction = function() {
     origin: this.randomChoice([
         'REGISTER',
         'ONLINE_STORE',
-//        'EXTERNAL_API'
+        'EXTERNAL_API',
     ]),
     customer_id: this.randomUserId(),
     note: 'Transaction Note: ' + this.randomString(10)
@@ -97,7 +97,7 @@ simulateSquare.prototype.Money = function(amount) {
   ];
   return {
     amount: (amount !== null && amount !== undefined) ? amount : this.randomInt(),
-    currency_code: this.randomChoice(country_codes)
+    currency: this.randomChoice(country_codes)
   };
 }
 
@@ -117,7 +117,7 @@ simulateSquare.prototype.Payment = function() {
     tax_money: this.Money(),
     tip_money: this.Money(),
     discount_money: this.Money(),
-    total_collected_money: this.Money(),
+    total_money: this.Money(),
     processing_fee_money: this.Money(),
     net_total_money: this.Money(),
     refunded_money: this.Money(),
@@ -159,7 +159,7 @@ simulateSquare.prototype.PaymentItemization = function() {
     itemization_type: this.randomChoice(itemization_type),
     item_detail: this.PaymentItemDetail(),
     notes: 'Notes for ' + item,
-    item_variation_name: this.randomChoice(['Adult', 'Child', 'Regular']),
+    variation_name: this.randomChoice(['Adult', 'Child', 'Regular']),
     total_money: this.Money(),
     single_quantity_money: this.Money(),
     gross_sales_money: this.Money(),

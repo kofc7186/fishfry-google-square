@@ -40,6 +40,6 @@ function sendOrderReadySMS(rowIndex){
     phone = prefix + phone;
   phone = '+' + phone;
 
-  sendTextMessage(order['Customer Name'] + ", your order #" + order['Order Number'] + " is now ready for pickup. Thanks for supporting the K of C Fish Fry! Reply with STOP to stop receiving these messages.",
+  sendTextMessage(order['Customer Name'] + ", your order #" + order['Order Number'] + " has left the cafeteria and will be delivered to your car shortly. Thanks for supporting the K of C Fish Fry! Reply with STOP to stop receiving these messages.",
                   [phone]);
 }

@@ -67,6 +67,7 @@ Orders for Selected Customer:
       "Check In!": function() {
         //remove iframe but keep width
         reviewDialog.dialog("option", "width", reviewDialog.width());
+        $(this).attr("disabled", true);
         iframe.empty();
         iframe.attr('srcdoc','');
         google.script.run.withSuccessHandler(checkInComplete).withFailureHandler(checkInFailed).markPresent($(".ui-selected").attr('order_number'));

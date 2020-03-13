@@ -41,9 +41,9 @@ function loggedUrlFetch(url, params, paginate) {
     paginate = false;
   }
   try {
-    console.log("loggedUrlFetch: invoking url " + url);
+    console.log({message: "loggedUrlFetch: invoking url " + url, initialData: params});
     var response = UrlFetchApp.fetch(url, params);
-    console.log({message:"loggedUrlFetch: response", initialData: response});
+    console.log({message:"loggedUrlFetch: response", initialData: response.getContentText()});
 
     if (paginate) {
       /*check for pagination; depends on square API version*/
@@ -101,7 +101,10 @@ function loggedUrlFetch(url, params, paginate) {
     }
     else {
       try {
-        return JSON.parse(response.getContentText());
+        if (response.getAllHeaders()['Content-Type'] == "application/json")
+          return JSON.parse(response.getContentText());
+        else
+          return {};
       }
       catch(e) {
         console.info({message: "loggedUrlFetch: UrlFetchApp.fetch() parse as JSON failed", data: e});

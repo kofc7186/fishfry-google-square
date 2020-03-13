@@ -102,7 +102,7 @@ Worksheet.prototype.upsertTransaction = function (proposedOrder, paymentData) {
       // actions to take: check for refunds associated with this payment ID
       if ((paymentData === undefined) || (paymentData == null)){
         var api = new squareAPI();
-        paymentData = api.OrderDetails(proposedOrder['Payment ID']);
+        paymentData = api.PaymentDetails(proposedOrder['Payment ID']);
       }
       if (paymentData.refunds.length == 0){
         // did not find refunds, simply return

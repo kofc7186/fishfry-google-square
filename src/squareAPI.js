@@ -13,7 +13,9 @@ squareAPI.prototype.call = function(url, params, paginate) {
   // always include authorization in header
   if (!('headers' in params)) {
     params['headers'] = {
-      "Authorization": "Bearer " + PropertiesService.getScriptProperties().getProperty("SQUARE_ACCESS_TOKEN")
+      "Authorization": "Bearer " + PropertiesService.getScriptProperties().getProperty("SQUARE_ACCESS_TOKEN"),
+      "Square-Version": "2020-02-26",
+      "Content-Type": "application/json"
     }
   }
 
@@ -27,19 +29,48 @@ squareAPI.prototype.call = function(url, params, paginate) {
 }
 
 /**
- * Retrieves order information from the Square V1 Payment API.
+ * Retrieves payment information from the Square V1 Payment API.
+ *
+ * Assumes SQUARE_ACCESS_TOKEN for authentication is stored in Script Property of same name
+ *
+ * @param {string} payment_id
+ *   Payment ID corresponding to Square Payment object
+ * @returns {object} payment object from Square V1 API
+     https://developer.squareup.com/reference/square/objects/Payment
+ * @throws Will throw an error if the API call to Square is not successful for any reason
+ */
+squareAPI.prototype.PaymentDetails = function(payment_id){
+  var url = "https://connect.squareup.com/v1/" + this.default_location_id + "/payments/" + payment_id;
+  return this.call(url);
+}
+/**
+ * Retrieves order information from the Square V2 Order API.
  *
  * Assumes SQUARE_ACCESS_TOKEN for authentication is stored in Script Property of same name
  *
  * @param {string} order_id
- *   Order ID corresponding to Square Payment object
- * @returns {object} payment object from Square V1 API
- *   https://docs.connect.squareup.com/api/connect/v1#datatype-payment
+ *   Order ID corresponding to Square Order object
+ * @returns {object} payment object from Square V2 API
+     https://developer.squareup.com/reference/square/objects/Order
  * @throws Will throw an error if the API call to Square is not successful for any reason
  */
 squareAPI.prototype.OrderDetails = function(order_id){
-  var url = "https://connect.squareup.com/v1/me/payments/" + order_id;
-  return this.call(url);
+  var params = {
+    "payload": JSON.stringify({ "order_ids": [order_id] }),
+    "method": "post"
+  }
+  var url = "https://connect.squareup.com/v2/locations/"+ this.default_location_id + "/orders/batch-retrieve";
+  var responseObj = this.call(url,params);
+
+  try {
+    if (responseObj.orders.length == 1)
+      return responseObj.orders[0];
+    else
+      throw "array is not of length 1!";
+  } catch (e) {
+    console.error({message: "OrderDetails: could not order details from Square API response", data: responseObj});
+    return "";
+  }
 }
 
 /**
@@ -128,24 +159,22 @@ squareAPI.prototype.TransactionMetadata = function (location_id, order_id, creat
 }
 
 squareAPI.prototype.locations = function() {
-  // https://docs.connect.squareup.com/api/connect/v1#get-locations
-  var url = 'https://connect.squareup.com/v1/me/locations'
+  var url = 'https://connect.squareup.com/v2/locations'
   return this.call(url);
 }
 
 squareAPI.prototype.pullPaymentsSince = function(sinceX) {
-  // https://docs.connect.squareup.com/api/connect/v1#navsection-payments
-  var url = 'https://connect.squareup.com/v1/me/payments?begin_time=' + sinceX + '&end_time=' + new Date().toISOString();
+  var url = 'https://connect.squareup.com/v1/' + this.default_location_id + '/payments?begin_time=' + sinceX + '&end_time=' + new Date().toISOString();
   return this.call(url);
 }
 
 /**
- * Retrieves current item descriptions from catalog.
+ * Retrieves current items from catalog.
  *
  * Assumes SQUARE_ACCESS_TOKEN for authentication is stored in Script Property of same name
  *
- * @returns {object} array of items in catalog for specified location
- *   https://docs.connect.squareup.com/api/connect/v1#datatype-item
+ * @returns {object} array of items in catalog
+ *   https://developer.squareup.com/reference/square/objects/CatalogObject
  * @throws Will throw an error if the API call to Square is not successful for any reason
  */
 squareAPI.prototype.itemCatalog = function(useCache){
@@ -160,12 +189,58 @@ squareAPI.prototype.itemCatalog = function(useCache){
       return JSON.parse(cached);
     }
   }
-  var url = "https://connect.squareup.com/v1/" + this.default_location_id + "/items";
+  var url = "https://connect.squareup.com/v2/catalog/list?types=ITEM";
   var response = this.call(url);
   if (useCache) {
     cache.put("square-item-catalog", JSON.stringify(response), 3600);// cache for 1 hour
   }
   return response;
+}
+
+squareAPI.prototype.markOrderReady = function(order_id) {
+  var currentOrderDetails = this.OrderDetails(order_id);
+  var params = {
+    "method" : "put",
+    "payload" : {
+      "idempotency_key": Date.now(), //number of milliseconds since epoch should be good enough here
+      "order" : {
+        "version": currentOrderDetails.version,
+        "fulfillments": [
+          {
+            "uid": currentOrderDetails.fulfillments[0].uid,
+            "state" : "PREPARED"
+          }
+        ]
+      }
+    }
+  };
+
+  var url = "https://connect.squareup.com/v2/locations/" + this.default_location_id + "/orders/" + order_id;
+
+  return this.call(url, params);
+}
+
+squareAPI.prototype.markOrderComplete = function(order_id) {
+  var currentOrderDetails = this.OrderDetails(order_id);
+  var params = {
+    "method" : "put",
+    "payload" : {
+      "idempotency_key": Date.now(), //number of milliseconds since epoch should be good enough here
+      "order" : {
+        "version": currentOrderDetails.version,
+        "fulfillments": [
+          {
+            "uid": currentOrderDetails.fulfillments[0].uid,
+            "state" : "COMPLETED"
+          }
+        ]
+      }
+    }
+  };
+
+  var url = "https://connect.squareup.com/v2/locations/" + this.default_location_id + "/orders/" + order_id;
+
+  return this.call(url, params);
 }
 
 var api = squareAPI();

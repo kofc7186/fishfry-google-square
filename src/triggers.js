@@ -36,7 +36,7 @@ function onEditInstalled(e){
 
   // if its a large edit, log and skip
   if ((editedRange.getNumRows() > 1) || (editedRange.getNumColumns() > 1)){
-    Browser.msgBox("onEdit: trigger cannot handle this large of an edit!");
+    SpreadsheetApp.getActiveSpreadsheet().toast("onEdit: trigger cannot handle this large of an edit!", "trigger msg", 3);
     console.log("onEdit: can't handle this large of an edit - " + editedRange.getA1Notation());
     return;
   }
@@ -109,7 +109,7 @@ function pullSquarePayments() {
   // it is still possible that in between the API call to square above and now that a webhook would have fired
   // duplicate entries for the same Square ID are protected inside upsertTransaction with a lock
   payments.forEach( function(payment) {
-    var txnObj = fmt.SquareTransactionToSheet(api.default_location_id, payment.id, payment);
+    var txnObj = fmt.SquareTransactionToSheet(payment.id, payment);
     console.log({message: "pullSquarePayments: attempting upsert for payment", data: payment, order: txnObj.txn});
     //3/3/19: pass payment object here to save separate API call back to Square
     worksheet.upsertTransaction(txnObj.txn, payment);
@@ -206,26 +206,35 @@ function reprintLabel(order_id, printer_id) {
 function markPresent(order_id) {
   var worksheet = new Worksheet();
   var rowIndex = worksheet.validateAndAdvanceState(order_id,'Paid Online');
-  worksheet.updateWaitTimeFormulas(rowIndex);
+  if (rowIndex !== -1) {
+    worksheet.updateWaitTimeFormulas(rowIndex);
+    var order = worksheet.worksheet.getRowAsObject(rowIndex);
+    addTask(order['Customer Name'], order['orderNumber']);
+  }
 }
 
 function markReady(order_id) {
   var worksheet = new Worksheet();
   var rowIndex = worksheet.validateAndAdvanceState(order_id,'Labeled');
-  //SMS
-  if (rowIndex != -1) {
+  if (rowIndex !== -1) {
     try {
       sendOrderReadySMS(rowIndex);
     }
     catch(err) {
       console.error(err);
     }
+    /*SMS
+    var order = worksheet.worksheet.getRowAsObject(rowIndex);
+    api.markOrderReady(order['Order ID']);
+    */
   }
 }
 
 function markClosed(order_id) {
   var worksheet = new Worksheet();
   worksheet.validateAndAdvanceState(order_id,'Ready');
+  var order = worksheet.worksheet.getRowAsObject(rowIndex);
+  //api.markOrderComplete(order['Order ID']);
 }
 
 function advanceState(order_id) {
@@ -274,4 +283,22 @@ function fixCustomerNames() {
     // if no, just continue to next
   });
 
+}
+
+function addTask(name, orderNumber) {
+  var deliveryListId = "cmFETU40UUFIbTFVdk82Vg"; //Delivery under fishfry gmail
+  var deliveryListItems = Tasks.Tasks.list(deliveryListId).items;
+
+  //default for API is to add to top of list; we want to add to bottom
+  var lastItemId = (deliveryListItems) ? deliveryListItems.sort((a, b) => (a.position > b.position) ? 1 : -1)[deliveryListItems.length - 1].id : undefined;
+  var options = {};
+  //previous needs to be task ID of last item in list
+  if (lastItemId !== undefined)
+    options.previous = lastItemId;
+
+  var task = {
+    title: name + ' - ' + orderNumber
+  };
+
+  task = Tasks.Tasks.insert(task, deliveryListId, options);
 }

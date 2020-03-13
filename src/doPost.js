@@ -89,7 +89,7 @@ function processWebhook(e) {
   var worksheet = new Worksheet();
 
   //FYI: this call can sleep up until 31 seconds waiting for a customer name to appear
-  var txnObj = fmt_order.SquareTransactionToSheet(location_id, entity_id);
+  var txnObj = fmt_order.SquareTransactionToSheet(entity_id);
   worksheet.upsertTransaction(txnObj.txn, txnObj.payment);
 }
 

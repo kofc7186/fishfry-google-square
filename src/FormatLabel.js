@@ -78,7 +78,7 @@ FormatLabel.prototype.formatLabelFromSquare = function(body, orderNumber, orderD
   var margin = 0;
   body.setMarginBottom(margin).setMarginLeft(margin).setMarginRight(margin).setMarginTop(5);
 
-  orderDetails.itemizations.forEach( function(item) {
+  orderDetails.line_items.forEach( function(item) {
     for (var count = 0; count < parseInt(item.quantity); count++) {
       //need to skip soups
       if (item.name == "Clam Chowder Soup")
@@ -112,9 +112,9 @@ FormatLabel.prototype.formatLabelFromSquare = function(body, orderNumber, orderD
       // 33 characters at 11pt
 
       var variationString = "";
-      if (item.item_variation_name !== "Regular") {
+      if (item.variation_name !== "Regular") {
         //if this is adult/child then print; otherwise skip
-        variationString = " (" + item.item_variation_name + ") + ";
+        variationString = " (" + item.variation_name + ") + ";
       }
       else
         variationString = " + ";
@@ -266,7 +266,7 @@ FormatLabel.prototype.createLabelFileFromSheet = function(orderSheetData) {
       // The following ID is hardcoded as we are reusing a single Google Doc to avoid hitting DocumentApp.create() quotas
       var templateDoc = DocumentApp.openById("18x8zF98Rvh1WgMaWsMASYzcPiXweoTivxWxL70Hmbc8");
       var body = templateDoc.getBody().clear();
-      var squareOrderDetails = this.api.OrderDetails(orderSheetData['Payment ID']);
+      var squareOrderDetails = this.api.OrderDetails(orderSheetData['Order ID']);
       this.formatLabelFromSquare(body, orderSheetData['Order Number'], squareOrderDetails, orderSheetData['Customer Name'], JSON.parse(orderSheetData['Note on Order']), parseInt(orderSheetData['Total Meals']), parseInt(orderSheetData['Total Soups']));
       templateDoc.saveAndClose();
       var blob = templateDoc.getAs(MimeType.PDF);
@@ -288,7 +288,7 @@ FormatLabel.prototype.createLabelFileFromSheet = function(orderSheetData) {
     //As Order Number + Customer name should be globally unique, this should make it easy to find in the Drive folder
     var editableLabelDoc = this.newLabelTemplate("Order " + orderSheetData['Order Number'] + ": " + orderSheetData['Customer Name']);
     var body = editableLabelDoc.getBody();//.setText('');
-    var squareOrderDetails = this.api.OrderDetails(orderSheetData['Payment ID']);
+    var squareOrderDetails = this.api.OrderDetails(orderSheetData['Order ID']);
     this.formatLabelFromSquare(body, orderSheetData['Order Number'], squareOrderDetails, orderSheetData['Customer Name'], JSON.parse(orderSheetData['Note on Order']), parseInt(orderSheetData['Total Meals']), parseInt(orderSheetData['Total Soups']));
     var url = editableLabelDoc.getUrl();
     editableLabelDoc.saveAndClose();
