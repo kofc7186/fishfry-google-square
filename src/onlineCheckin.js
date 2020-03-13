@@ -1,5 +1,7 @@
 function doGet(e) {
-  return HtmlService.createHtmlOutputFromFile('src/html/onlineCheckin').setTitle('KofC 7186 Fish Fry: Online Order Check-in');
+  var service = HtmlService.createHtmlOutputFromFile('src/html/onlineCheckin').setTitle('KofC 7186 Fish Fry: Online Order Check-in');
+  service.addMetaTag('viewport', 'width=device-width, initial-scale=1');
+  return service;
 }
 
 /**

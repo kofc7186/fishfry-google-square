@@ -209,7 +209,7 @@ function markPresent(order_id) {
   if (rowIndex !== -1) {
     worksheet.updateWaitTimeFormulas(rowIndex);
     var order = worksheet.worksheet.getRowAsObject(rowIndex);
-    addTask(order['Customer Name'], order['orderNumber']);
+    addTask(order['Customer Name'], order['Order Number']);
   }
 }
 
@@ -250,7 +250,7 @@ function fixCustomerNames() {
   var allOrders = worksheet.worksheet.all();
 
   var noNameOrders = allOrders.filter(function(sheetOrder) {
-    return (sheetOrder['Customer Name'].trim().length == 0);
+    return ((sheetOrder['Customer Name'].trim().length == 0) || (sheetOrder['Customer ID'].trim().length == 0));
   });
 
   if (noNameOrders.length == 0)
@@ -260,7 +260,16 @@ function fixCustomerNames() {
     // try to see if customer name has now been set
     console.log("fixCustomerNames: checking for payment "+order['Payment ID'])
     var api = new squareAPI();
-    var customerInfo = api.CustomerInfo(order['Customer ID']);
+
+    var orderDetails = api.OrderDetails(order['Order ID']);
+
+    var customerId = orderDetails.customer_id;
+    if (customerId == undefined) {
+      console.log("fixCustomerNames: paymentID " + order['Payment ID'] + " has no customer ID")
+      return;
+    }
+
+    var customerInfo = api.CustomerInfo(customerId);
 
     // if names came back set in the customer info, then update the sheet
     if (customerInfo.hasOwnProperty("given_name") && customerInfo.hasOwnProperty("family_name")) {
@@ -271,10 +280,12 @@ function fixCustomerNames() {
 
       worksheet.worksheet.updateCell(rowIndex, 'Last Name', extractedNames.lastName);
       worksheet.worksheet.updateCell(rowIndex, 'Customer Name', extractedNames.customerName);
+      worksheet.worksheet.updateCell(rowIndex, 'Customer ID', customerId);
       
       // we overwrite these values here instead of making a round trip to the sheet
       order['Last Name'] = extractedNames.lastName;
       order['Customer Name'] = extractedNames.customerName;
+      order['Customer ID'] = customerId;
       
       var formatLabel = new FormatLabel();
       var id = formatLabel.createLabelFileFromSheet(order);

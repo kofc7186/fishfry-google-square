@@ -238,7 +238,7 @@ Worksheet.prototype.updateWaitTimeFormulas = function (rowIndex) {
   var orderStateMessageCell = this.worksheet.getColumnLetter("Order State Message") + rowIndex;
   var orderStateMessageFormula = "IF("+orderStateCell+"=\"Present\",\"Being Cooked\","+
                                  "IF("+orderStateCell+"=\"Labeled\",\"Being Plated\","+
-                                 "IF("+orderStateCell+"=\"Ready\",\"Ready for Pickup\","+orderStateCell+")))";
+                                 "IF("+orderStateCell+"=\"Ready\",\"Ready for Pickup\",\"\")))";
 
   this.worksheet.worksheet.getRange(orderStateMessageCell).setFormula(orderStateMessageFormula);
 }

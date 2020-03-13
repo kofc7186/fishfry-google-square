@@ -1,20 +1,25 @@
 <!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
 <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
 <style type="text/css">
   #selectable .ui-selecting { background: #FECA40; }
   #selectable .ui-selected { background: #F39814; color: white; }
-  #selectable { list-style-type: none; margin: 0; padding: 0; width: 60%; }
-  #selectable li { margin: 3px; padding: 0.4em; font-size: 1.4em; height: 18px; } 
+  #selectable { list-style-type: none; margin: 0; padding: 0; }
+  #selectable li { margin: 3px; padding: 0.4em; font-size: 1.4em; } 
+  .ui-dialog {background:white !important}
+  .ui-button.check_in {background: #F39814; color: white; }
 </style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-<div class="ui-widget">
+<div role="main" class="ui-widget ui-content">
   <label for="tags">Customer Name: </label>
-  <input id="tags">
+  <input autocorrect="off" autocapitalize="off" spellcheck="false" id="tags">
 </div>
 <br/>
 Orders for Selected Customer:
-<ol id="selectable">
+<ol id="selectable" data-role="listview">
 </ol>
 
 <script>
@@ -63,17 +68,23 @@ Orders for Selected Customer:
   });
   
   function setCheckInButton() {
-    reviewDialog.dialog("option", "buttons", {
-      "Check In!": function() {
-        //remove iframe but keep width
-        reviewDialog.dialog("option", "width", reviewDialog.width());
-        $(this).attr("disabled", true);
-        iframe.empty();
-        iframe.attr('srcdoc','');
-        google.script.run.withSuccessHandler(checkInComplete).withFailureHandler(checkInFailed).markPresent($(".ui-selected").attr('order_number'));
-        //checkInComplete();
-        //$( this ).dialog( "close" );
-      }});
+    reviewDialog.dialog("option", "buttons", [
+        {
+          id: "check_in",
+          text: "Check In!",
+          class: "check_in",
+          click: function() {
+            $("#check_in").button("disable");
+            //remove iframe but keep width
+            reviewDialog.dialog("option", "width", reviewDialog.width());
+            iframe.empty();
+            iframe.attr('srcdoc','');
+            google.script.run.withSuccessHandler(checkInComplete).withFailureHandler(checkInFailed).markPresent($(".ui-selected").attr('order_number'));
+            //checkInComplete();
+            //$( this ).dialog( "close" );
+          }
+        }
+      ]);
   }
   
   var iframe = $('<iframe frameborder="0" marginwidth="0" marginheight="0" allowfullscreen></iframe>');
