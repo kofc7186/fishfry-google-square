@@ -236,10 +236,8 @@ FormatLabel.prototype.createLabelFile = function(orderNumber, orderDetails, cust
       if (lock)
         lock.releaseLock();
     }
-    var labelFile = DriveApp.createFile(blob);
+    var labelFile = this.getLabelFolder().createFile(blob);
     labelFile.setName(wordDocTitle);
-    this.getLabelFolder().addFile(labelFile);
-    DriveApp.getRootFolder().removeFile(labelFile);
     return labelFile.getId();
   }
   else if (labelApproach == "GDoc") {
@@ -278,10 +276,8 @@ FormatLabel.prototype.createLabelFileFromSheet = function(orderSheetData) {
       if (lock)
         lock.releaseLock();
     }
-    var labelFile = DriveApp.createFile(blob);
+    var labelFile = this.getLabelFolder().createFile(blob);
     labelFile.setName(wordDocTitle);
-    this.getLabelFolder().addFile(labelFile);
-    DriveApp.getRootFolder().removeFile(labelFile);
     return labelFile.getId();
   }
   else if (labelApproach == "GDoc") {
