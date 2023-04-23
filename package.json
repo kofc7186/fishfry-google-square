@@ -14,7 +14,7 @@
   },
   "devDependencies": {
     "@freshes/jsdoc-template": "^1.0.0",
-    "@google/clasp": "^1.1.1",
+    "@google/clasp": "^2.4.2",
     "csv": "^2.0.0",
     "husky": "^0.14.3",
     "jsdoc": "^3.5.5"
